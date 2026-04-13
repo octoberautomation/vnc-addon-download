@@ -340,11 +340,9 @@ EOF
 echo ""
 echo "Sending registration to VNC Dashboard..."
 
-# Send registration
-RESPONSE=$(curl -s -X POST "$SUPABASE_URL/functions/v1/make-server-93820e45/api/register-vnc" \
+# Send registration to VNC instance manager
+RESPONSE=$(curl -s -X POST "$SUPABASE_URL/functions/v1/make-server-93820e45/instances/register" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-  -H "apikey: $SUPABASE_ANON_KEY" \
   -d "$JSON_PAYLOAD" 2>&1) || {
     echo "⚠️  Warning: VNC dashboard registration failed"
     echo "   VNC server is still accessible locally"
@@ -447,7 +445,7 @@ rm -f /opt/plc-gateway/machine-config.json
 echo "✓ Clean slate ready"
 echo ""
 
-REGISTRATION_API="$SUPABASE_URL/functions/v1/make-server-93820e45/api/register-machine"
+REGISTRATION_API="$SUPABASE_URL/functions/v1/make-server-e7587bea/api/register-machine"
 CONFIG_FILE="/opt/plc-gateway/machine-config.json"
 MACHINE_ID_FILE="/opt/plc-gateway/.machine-id"
 

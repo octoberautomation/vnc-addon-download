@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | October Automation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --orange: #f97316;
+      --orange-hover: #ea580c;
+      --gray-100: #f1f5f9;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --white: #ffffff;
+      --green: #22c55e;
+      --green-bg: rgba(34,197,94,0.1);
+      --yellow: #eab308;
+      --yellow-bg: rgba(234,179,8,0.1);
+      --red: #ef4444;
+      --red-bg: rgba(239,68,68,0.1);
+      --offline-gray: #6b7280;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--navy);
+      color: var(--gray-100);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      background: rgba(255,255,255,0.15);
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .header-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.15);
+      color: var(--white);
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .refresh-btn:hover { background: rgba(255,255,255,0.25); }
+    .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    main { flex: 1; padding: 1.5rem 2rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    /* Nav */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .nav-link:hover { color: var(--white); }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--navy-light);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .stat-card.online { border-color: rgba(34,197,94,0.3); background: var(--green-bg); }
+    .stat-card.warning { border-color: rgba(234,179,8,0.3); background: var(--yellow-bg); }
+    .stat-card.offline { border-color: rgba(107,114,128,0.3); }
+
+    .stat-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--gray-400);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .stat-dot.green { background: var(--green); }
+    .stat-dot.yellow { background: var(--yellow); }
+    .stat-dot.gray { background: var(--offline-gray); }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card.online .stat-value { color: var(--green); }
+    .stat-card.warning .stat-value { color: var(--yellow); }
+
+    .stat-desc {
+      font-size: 0.75rem;
+      color: var(--gray-400);
+    }
+
+    .stat-card.online .stat-desc { color: var(--green); }
+    .stat-card.warning .stat-desc { color: var(--yellow); }
+
+    /* Instances section */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .section-sub {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Table */
+    .table-wrap {
+      background: var(--navy-light);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.85rem 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    td {
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .machine-name {
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .machine-ip {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-top: 0.15rem;
+    }
+
+    .ts-ip {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .ts-icon { font-size: 0.7rem; }
+
+    /* Status badge */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status.online { background: var(--green-bg); color: var(--green); }
+    .status.warning { background: var(--yellow-bg); color: var(--yellow); }
+    .status.offline { background: rgba(107,114,128,0.15); color: var(--offline-gray); }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status.online .status-dot { background: var(--green); }
+    .status.warning .status-dot { background: var(--yellow); }
+    .status.offline .status-dot { background: var(--offline-gray); }
+
+    /* License */
+    .license-key {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--gray-300);
+    }
+
+    .no-license {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid rgba(234,179,8,0.4);
+      color: var(--yellow);
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 0.3rem;
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .action-btn {
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.35rem;
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .action-btn:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .action-btn.delete:hover {
+      color: var(--red);
+      border-color: rgba(239,68,68,0.4);
+      background: var(--red-bg);
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--gray-500);
+    }
+
+    .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .empty h3 { font-size: 1.1rem; color: var(--gray-300); margin-bottom: 0.5rem; }
+    .empty p { font-size: 0.85rem; }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--gray-500);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      color: var(--gray-500);
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .table-wrap { overflow-x: auto; }
+      table { min-width: 700px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-icon">&#128421;</div>
+    <div>
+      <div class="header-title">October Automation</div>
+      <div class="header-subtitle">VNC Management Console</div>
+    </div>
+  </div>
+  <button class="refresh-btn" onclick="loadInstances()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    Refresh
+  </button>
+</header>
+
+<main>
+  <nav class="nav-bar">
+    <a href="/" class="nav-link">Home</a>
+    <span style="color:var(--gray-500);">/</span>
+    <span style="font-size:0.85rem;font-weight:600;">Dashboard</span>
+  </nav>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Total Instances</div>
+      <div class="stat-value" id="total">-</div>
+      <div class="stat-desc">Deployed clients</div>
+    </div>
+    <div class="stat-card online">
+      <div class="stat-label"><span class="stat-dot green"></span> Online</div>
+      <div class="stat-value" id="online">-</div>
+      <div class="stat-desc">Active connections</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-label"><span class="stat-dot yellow"></span> Warning</div>
+      <div class="stat-value" id="warning">-</div>
+      <div class="stat-desc">Needs attention</div>
+    </div>
+    <div class="stat-card offline">
+      <div class="stat-label"><span class="stat-dot gray"></span> Offline</div>
+      <div class="stat-value" id="offline">-</div>
+      <div class="stat-desc">Unavailable</div>
+    </div>
+  </div>
+
+  <!-- Instance table -->
+  <div class="section-header">&#128421; VNC Instances</div>
+  <div class="section-sub" id="updated">Manage and monitor all deployed VNC clients</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Machine Name</th>
+          <th>Tailscale IP</th>
+          <th>License</th>
+          <th>Status</th>
+          <th>Last Seen</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="instances-body">
+        <tr><td colspan="6" class="loading">Loading instances...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer>October Automation &mdash; VNC Management Console</footer>
+
+<script>
+const API = 'https://gtqvwbuzrntgqikwjtru.supabase.co/functions/v1/make-server-93820e45';
+
+function getStatus(instance) {
+  if (!instance.lastSeen) return 'offline';
+  const mins = (Date.now() - new Date(instance.lastSeen).getTime()) / 60000;
+  if (mins < 2) return 'online';
+  if (mins < 5) return 'warning';
+  return 'offline';
+}
+
+function formatDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) +
+    ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+}
+
+function statusLabel(s) {
+  const labels = { online: 'Online', warning: 'Warning', offline: 'Offline' };
+  return labels[s] || s;
+}
+
+async function deleteInstance(id) {
+  if (!confirm('Delete this instance?')) return;
+  await fetch(API + '/instances/' + encodeURIComponent(id), { method: 'DELETE' });
+  loadInstances();
+}
+
+async function loadInstances() {
+  const btn = document.querySelector('.refresh-btn');
+  btn.classList.add('spinning');
+
+  try {
+    const res = await fetch(API + '/instances');
+    const data = await res.json();
+    const instances = data.instances || [];
+
+    // Compute statuses
+    const statuses = instances.map(i => ({ ...i, _status: getStatus(i) }));
+    const online = statuses.filter(i => i._status === 'online').length;
+    const warning = statuses.filter(i => i._status === 'warning').length;
+    const offline = statuses.filter(i => i._status === 'offline').length;
+
+    document.getElementById('total').textContent = instances.length;
+    document.getElementById('online').textContent = online;
+    document.getElementById('warning').textContent = warning;
+    document.getElementById('offline').textContent = offline;
+    document.getElementById('updated').textContent =
+      'Manage and monitor all deployed VNC clients  \u2022  Last updated: ' +
+      new Date().toLocaleTimeString();
+
+    const tbody = document.getElementById('instances-body');
+
+    if (instances.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty">' +
+        '<div class="empty-icon">&#128421;</div>' +
+        '<h3>No instances registered</h3>' +
+        '<p>Run the install script on a machine to register it here.</p>' +
+        '</div></td></tr>';
+      return;
+    }
+
+    // Sort: online first, then warning, then offline
+    const order = { online: 0, warning: 1, offline: 2 };
+    statuses.sort((a, b) => order[a._status] - order[b._status]);
+
+    tbody.innerHTML = statuses.map(i => `
+      <tr>
+        <td>
+          <div class="machine-name">${esc(i.machineName || i.id)}</div>
+          <div class="machine-ip">${esc(i.ipAddress || '')}</div>
+        </td>
+        <td>
+          ${i.tailscaleIp && i.tailscaleIp !== 'Not configured'
+            ? '<span class="ts-ip"><span class="ts-icon">&#128225;</span> ' + esc(i.tailscaleIp) + '</span>'
+            : '<span style="color:var(--gray-500)">-</span>'}
+        </td>
+        <td>
+          ${i.licenseKey
+            ? '<span class="license-key">' + esc(i.licenseKey) + '</span>'
+            : '<span class="no-license">No License</span>'}
+        </td>
+        <td><span class="status ${i._status}"><span class="status-dot"></span>${statusLabel(i._status)}</span></td>
+        <td style="font-size:0.8rem;color:var(--gray-400)">${formatDate(i.lastSeen)}</td>
+        <td>
+          <div class="actions">
+            <button class="action-btn delete" title="Delete" onclick="deleteInstance('${esc(i.id)}')">&#128465;</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    document.getElementById('instances-body').innerHTML =
+      '<tr><td colspan="6" class="loading" style="color:var(--red)">Failed to load instances: ' + esc(e.message) + '</td></tr>';
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// Initial load + auto-refresh
+loadInstances();
+setInterval(loadInstances, 30000);
+</script>
+
+</body>
+</html>

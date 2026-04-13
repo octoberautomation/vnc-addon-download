@@ -31,9 +31,31 @@
       padding: 1.5rem 2rem;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      justify-content: space-between;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .admin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.4rem 1rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .admin-link:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
 
     .logo-text {
       font-size: 1.1rem;
@@ -265,7 +287,13 @@
 <body>
 
 <header>
-  <span class="logo-text"><span class="logo-accent">October</span> Automation</span>
+  <div class="header-left">
+    <span class="logo-text"><span class="logo-accent">October</span> Automation</span>
+  </div>
+  <a href="/admin.html" class="admin-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Admin
+  </a>
 </header>
 
 <main>
