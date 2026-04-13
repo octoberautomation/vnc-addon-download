@@ -42,10 +42,15 @@ echo "⚠️  Prerequisites:"
 echo "   • Ubuntu 22.04 LTS with GUI"
 echo ""
 
-read -p "Continue with installation? (yes/no): " confirm
-if [ "$confirm" != "yes" ]; then
-    echo "❌ Installation cancelled"
-    exit 0
+# If running interactively, ask for confirmation; if piped (curl | bash), auto-proceed
+if [ -t 0 ]; then
+    read -p "Continue with installation? (yes/no): " confirm
+    if [ "$confirm" != "yes" ]; then
+        echo "❌ Installation cancelled"
+        exit 0
+    fi
+else
+    echo "🔄 Non-interactive mode detected, proceeding automatically..."
 fi
 
 echo ""
