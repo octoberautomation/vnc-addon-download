@@ -286,7 +286,7 @@
     </div>
 
     <div class="install-cmd">
-      <code><span class="prefix">$</span> curl -fsSL https://YOUR_DOMAIN/install-vnc-addon.sh | sudo bash</code>
+      <code><span class="prefix">$</span> curl -fsSL https://download-site-sigma.vercel.app/install-vnc-addon.sh | sudo bash</code>
       <button class="copy-btn" onclick="copyCmd()">Copy</button>
     </div>
   </section>
@@ -348,7 +348,7 @@
 
 <script>
 function copyCmd() {
-  const cmd = 'curl -fsSL https://YOUR_DOMAIN/install-vnc-addon.sh | sudo bash';
+  const cmd = 'curl -fsSL https://download-site-sigma.vercel.app/install-vnc-addon.sh | sudo bash';
   navigator.clipboard.writeText(cmd).then(() => {
     const btn = document.querySelector('.copy-btn');
     btn.textContent = 'Copied!';
